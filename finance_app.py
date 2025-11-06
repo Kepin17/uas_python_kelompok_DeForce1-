@@ -1,6 +1,3 @@
-"""
-Finance App - User Interface dan Controller
-"""
 import os
 import json
 from datetime import datetime, timedelta
