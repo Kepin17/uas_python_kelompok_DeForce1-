@@ -261,3 +261,167 @@ class FinanceApp:
             print("❌ Jumlah harus berupa angka!")
         
         input("\n📱 Tekan Enter untuk kembali...")
+    
+    def view_balance_and_history(self):
+        """Menu lihat saldo dan riwayat"""
+        print(f"\n📊 SALDO & RIWAYAT")
+        print("-" * 25)
+        print(f"💳 Saldo Saat Ini: Rp {self.account.get_balance():,.0f}")
+        print(f"📅 Akun dibuat: {self.account.created_date.strftime('%d/%m/%Y %H:%M')}")
+        
+        transactions = self.account.get_transaction_history()
+        if not transactions:
+            print("\n📝 Belum ada transaksi")
+        else:
+            print(f"\n📝 Riwayat Transaksi ({len(transactions)} transaksi):")
+            print("-" * 60)
+            
+            # Show last 10 transactions
+            recent_transactions = transactions[-10:]
+            for transaction in reversed(recent_transactions):
+                icon = "💵" if transaction.transaction_type == "income" else "💸"
+                print(f"{icon} {transaction}")
+            
+            if len(transactions) > 10:
+                print(f"\n... dan {len(transactions) - 10} transaksi lainnya")
+        
+        input("\n📱 Tekan Enter untuk kembali...")
+    
+    def financial_reports(self):
+        """Menu laporan keuangan"""
+        print("\n📈 LAPORAN KEUANGAN")
+        print("-" * 25)
+        
+        current_date = datetime.now()
+        
+        # Monthly summary
+        monthly_summary = self.account.get_monthly_summary(current_date.month, current_date.year)
+        print(f"\n📅 Ringkasan Bulan {current_date.strftime('%B %Y')}:")
+        print(f"   💵 Total Pemasukan: Rp {monthly_summary['total_income']:,.0f}")
+        print(f"   💸 Total Pengeluaran: Rp {monthly_summary['total_expense']:,.0f}")
+        print(f"   📊 Net Income: Rp {monthly_summary['net_income']:,.0f}")
+        print(f"   🔢 Jumlah Transaksi: {monthly_summary['transaction_count']}")
+        
+        # Category summary
+        category_summary = self.account.get_category_summary()
+        if category_summary:
+            print(f"\n🏷️  Ringkasan per Kategori:")
+            for category, data in category_summary.items():
+                net = data["income"] - data["expense"]
+                print(f"   {category}: Net Rp {net:,.0f} ({data['count']} transaksi)")
+        
+        input("\n📱 Tekan Enter untuk kembali...")
+    
+
+    def settings_menu(self):
+        """Menu pengaturan"""
+        while True:
+            print("\n⚙️  PENGATURAN")
+            print("-" * 15)
+            print("1. 👤 Ganti Nama")
+            print("2. 💾 Export ke CSV")
+            print("3. 📁 Simpan Data Manual")
+            print("4. 🔄 Load Data")
+            print("5. 📊 Info Data")
+            print("6. 🔙 Kembali")
+            
+            choice = input("\n🔢 Pilih menu (1-6): ").strip()
+            
+            if choice == "1":
+                new_name = input("👤 Nama baru: ").strip()
+                if new_name:
+                    old_name = self.account.owner_name
+                    self.account.owner_name = new_name
+                    
+                    # Auto-save after name change
+                    if self.save_data_to_json():
+                        print(f"✅ Nama berhasil diubah dari '{old_name}' ke '{new_name}'")
+                        print("💾 Data tersimpan otomatis")
+                    else:
+                        print(f"✅ Nama berhasil diubah dari '{old_name}' ke '{new_name}'")
+                        print("⚠️ Gagal menyimpan perubahan")
+                else:
+                    print("❌ Nama tidak boleh kosong!")
+                    
+            elif choice == "2":
+                print("\n💾 EXPORT DATA KE CSV")
+                print("-" * 25)
+                if self.export_to_csv():
+                    print("📁 File CSV berisi semua transaksi dengan detail lengkap")
+                
+            elif choice == "3":
+                print("\n📁 SIMPAN DATA MANUAL")
+                print("-" * 25)
+                if self.save_data_to_json():
+                    print("✅ Data berhasil disimpan ke finance_data.json")
+                else:
+                    print("❌ Gagal menyimpan data")
+                    
+            elif choice == "4":
+                print("\n🔄 LOAD DATA")
+                print("-" * 15)
+                confirm = input("⚠️ Load data akan mengganti data saat ini. Lanjutkan? (y/n): ").lower()
+                if confirm == 'y':
+                    if self.load_data_from_json():
+                        print("✅ Data berhasil dimuat ulang")
+                    else:
+                        print("❌ Gagal memuat data atau file tidak ditemukan")
+                        
+            elif choice == "5":
+                print("\n📊 INFO DATA")
+                print("-" * 15)
+                print(f"📁 File data: {self.data_file}")
+                print(f"📄 Status file: {'Ada' if os.path.exists(self.data_file) else 'Tidak ada'}")
+                if os.path.exists(self.data_file):
+                    file_size = os.path.getsize(self.data_file)
+                    print(f"📏 Ukuran file: {file_size} bytes")
+                    mod_time = datetime.fromtimestamp(os.path.getmtime(self.data_file))
+                    print(f"⏰ Terakhir diubah: {mod_time.strftime('%d/%m/%Y %H:%M:%S')}")
+                
+            elif choice == "6":
+                break
+            else:
+                print("❌ Pilihan tidak valid!")
+            
+            input("\n📱 Tekan Enter untuk kembali...")
+    
+    def run(self):
+        """Menjalankan aplikasi"""
+        self.clear_screen()
+        
+        # Setup account first
+        if not self.setup_account():
+            return
+        
+        # Main loop
+        while self.is_running:
+            self.clear_screen()
+            self.display_header()
+            self.display_main_menu()
+            
+            choice = input("\n🔢 Pilih menu (0-5): ").strip()
+            
+            if choice == "1":
+                self.add_income()
+            elif choice == "2":
+                self.add_expense()
+            elif choice == "3":
+                self.view_balance_and_history()
+            elif choice == "4":
+                self.financial_reports()
+            elif choice == "5":
+                self.settings_menu()
+            elif choice == "0":
+                # Final save before exit
+                print("\n💾 Menyimpan data...")
+                if self.save_data_to_json():
+                    print("✅ Data tersimpan dengan aman")
+                else:
+                    print("⚠️ Gagal menyimpan data")
+                
+                print("\n👋 Terima kasih telah menggunakan Personal Finance Manager!")
+                print("💡 Jangan lupa kelola keuangan dengan bijak!")
+                self.is_running = False
+            else:
+                print("❌ Pilihan tidak valid!")
+                input("📱 Tekan Enter untuk coba lagi...")
