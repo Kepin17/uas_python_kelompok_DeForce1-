@@ -1,7 +1,7 @@
 {
     "account": {
         "owner_name": "kevin",
-        "balance": 4980000.0,
+        "balance": 75000.0,
         "created_date": "2025-11-05T13:50:22.267565",
         "transactions": [
             {
@@ -19,6 +19,22 @@
                 "transaction_type": "expense",
                 "category": "buku",
                 "date": "2025-11-05T13:50:59.456115"
+            },
+            {
+                "id": 1487071186128,
+                "amount": 100000.0,
+                "description": "Pemasukan - Income",
+                "transaction_type": "income",
+                "category": "Income",
+                "date": "2025-11-06T13:45:18.128101"
+            },
+            {
+                "id": 1487067182528,
+                "amount": 5000.0,
+                "description": "Pengeluaran - pendidikan",
+                "transaction_type": "expense",
+                "category": "pendidikan",
+                "date": "2025-11-06T13:45:40.225045"
             }
         ]
     }
