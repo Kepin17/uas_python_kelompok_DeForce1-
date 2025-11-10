@@ -612,10 +612,20 @@ st.markdown("""
     .stSelectbox [role="option"],
     .stSelectbox li,
     div[data-baseweb="select"] li,
-    div[data-baseweb="menu"] li {
+    div[data-baseweb="menu"] li,
+    .stSelectbox > div[data-baseweb="select"] > div,
+    div[role="listbox"],
+    [data-baseweb="popover"] {
         background-color: white !important;
         background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
         color: #1e40af !important;
+    }
+    
+    /* Additional dropdown container styling */
+    [data-baseweb="popover"],
+    div[role="listbox"] {
+        border: 2px solid #e2e8f0 !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
     }
     
     /* Hover state for dropdown options */
@@ -631,9 +641,18 @@ st.markdown("""
 
 class FinanceAppGUI:
     def __init__(self):
-        self.data_file = "finance_data.json"
+        # Gunakan path absolut untuk file data
+        import os
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        self.data_file = os.path.join(current_dir, "finance_data.json")
         self.account: Optional[Account] = None
         self.initialize_session_state()
+        
+        # Load existing data atau buat account baru jika belum ada
+        if not self.load_data_from_json():
+            self.account = Account("Personal Finance")
+            self.save_data_to_json()
+        st.session_state.account_loaded = True
     
     def initialize_session_state(self):
         """Initialize session state variables"""
@@ -643,6 +662,8 @@ class FinanceAppGUI:
             st.session_state.show_success_message = False
         if 'success_message' not in st.session_state:
             st.session_state.success_message = ""
+        if 'current_view' not in st.session_state:
+            st.session_state.current_view = "main"  # Default view
     
     def load_data_from_json(self) -> bool:
         """Load account data from JSON file"""
@@ -697,6 +718,7 @@ class FinanceAppGUI:
             return False
         
         try:
+            import json
             data = {
                 "account": {
                     "owner_name": self.account.owner_name,
@@ -717,6 +739,7 @@ class FinanceAppGUI:
                 }
                 data["account"]["transactions"].append(transaction_data)
             
+            # Tulis data ke file JSON dengan format yang rapi
             with open(self.data_file, 'w', encoding='utf-8') as file:
                 json.dump(data, file, indent=4, ensure_ascii=False)
             
@@ -1116,10 +1139,11 @@ class FinanceAppGUI:
             for transaction in reversed(filtered_transactions):
                 icon = "💵" if transaction.transaction_type == "income" else "💸"
                 amount_display = f"+ {transaction.amount:,.0f}" if transaction.transaction_type == "income" else f"- {transaction.amount:,.0f}"
+                trans_type = "Pemasukan 💵" if transaction.transaction_type == "income" else "Pengeluaran 💸"
                 
                 df_data.append({
                     "Tanggal": transaction.date.strftime('%d/%m/%Y %H:%M'),
-                    "": icon,
+                    "Jenis": trans_type,
                     "Kategori": transaction.category,
                     "Deskripsi": transaction.description,
                     "Jumlah": amount_display
@@ -1461,15 +1485,13 @@ class FinanceAppGUI:
     
     def run(self):
         """Run the Streamlit application"""
-        # Load existing data if available
-        if not st.session_state.account_loaded and os.path.exists(self.data_file):
-            self.load_data_from_json()
+        # Account sudah di-handle di __init__, jadi langsung tampilkan main_dashboard
+        self.main_dashboard()
         
-        # Main application logic
-        if not st.session_state.account_loaded or self.account is None:
-            self.setup_account_page()
-        else:
-            self.main_dashboard()
+        # Show success message if any
+        if st.session_state.show_success_message and st.session_state.success_message:
+            st.success(st.session_state.success_message)
+            st.session_state.show_success_message = False  # Reset after showing
 
 # Run the application
 if __name__ == "__main__":

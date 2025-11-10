@@ -1,40 +1,24 @@
 {
     "account": {
-        "owner_name": "kevin",
-        "balance": 75000.0,
-        "created_date": "2025-11-05T13:50:22.267565",
+        "owner_name": "test",
+        "balance": 50000.0,
+        "created_date": "2025-11-10T15:10:31.189763",
         "transactions": [
             {
-                "id": 2257997216272,
-                "amount": 50000.0,
-                "description": "Pemasukan - buku",
-                "transaction_type": "income",
-                "category": "buku",
-                "date": "2025-11-05T13:50:38.735482"
-            },
-            {
-                "id": 2257999057680,
-                "amount": 70000.0,
-                "description": "Pengeluaran - buku",
-                "transaction_type": "expense",
-                "category": "buku",
-                "date": "2025-11-05T13:50:59.456115"
-            },
-            {
-                "id": 1487071186128,
+                "id": 2292892825456,
                 "amount": 100000.0,
-                "description": "Pemasukan - Income",
+                "description": "Pemasukan - Gaji",
                 "transaction_type": "income",
-                "category": "Income",
-                "date": "2025-11-06T13:45:18.128101"
+                "category": "Gaji",
+                "date": "2025-11-10T15:16:03.317201"
             },
             {
-                "id": 1487067182528,
-                "amount": 5000.0,
-                "description": "Pengeluaran - pendidikan",
+                "id": 2292895977104,
+                "amount": 50000.0,
+                "description": "Pengeluaran - Makanan",
                 "transaction_type": "expense",
-                "category": "pendidikan",
-                "date": "2025-11-06T13:45:40.225045"
+                "category": "Makanan",
+                "date": "2025-11-10T15:16:16.449101"
             }
         ]
     }
